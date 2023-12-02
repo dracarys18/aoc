@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -38,7 +39,32 @@ func solution1(game string, index int) bool {
 	return true
 }
 
-func parseAndSolve(filename string) int {
+func solution2(game string) int {
+	mintries := map[string]int{
+		"red":   math.MinInt64,
+		"blue":  math.MinInt64,
+		"green": math.MinInt64,
+	}
+
+	tries := strings.Split(game, ";")
+	for _, try := range tries {
+		subsets := strings.Split(try, ",")
+		for _, subset := range subsets {
+			play := strings.Split(subset, " ")
+			count, err := strconv.Atoi(play[1])
+			if err == nil {
+				mintries[play[2]] = max(mintries[play[2]], count)
+			}
+		}
+	}
+	power := 1
+	for _, v := range mintries {
+		power *= v
+	}
+	return power
+}
+
+func parseAndSolve(filename string, which string) int {
 	input, err := os.ReadFile(filename)
 	if err != nil {
 		panic("Unable to read the file")
@@ -52,8 +78,16 @@ func parseAndSolve(filename string) int {
 			if err != nil {
 				panic("Invalid input")
 			}
-			if solution1(game[1], gameIndex) {
-				sum += gameIndex
+			switch which {
+			case "sol1":
+				if solution1(game[1], gameIndex) {
+					sum += gameIndex
+				}
+			case "sol2":
+				sum += solution2(game[1])
+			default:
+				panic("Wrong solution number")
+
 			}
 		}
 	}
@@ -61,5 +95,6 @@ func parseAndSolve(filename string) int {
 }
 
 func main() {
-	fmt.Println(parseAndSolve("input.txt"))
+	fmt.Printf("sol1 %d\n", parseAndSolve("input.txt", "sol1"))
+	fmt.Printf("sol2 %d\n", parseAndSolve("input.txt", "sol2"))
 }
