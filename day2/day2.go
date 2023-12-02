@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"math"
-	"os"
 	"strconv"
 	"strings"
+	"utils"
 )
 
 var possibility = map[string]int{
@@ -65,11 +65,7 @@ func solution2(game string) int {
 }
 
 func parseAndSolve(filename string, which string) int {
-	input, err := os.ReadFile(filename)
-	if err != nil {
-		panic("Unable to read the file")
-	}
-	lines := strings.Split(string(input), "\n")
+	lines := utils.ReadLine(filename)
 	sum := 0
 	for _, s := range lines {
 		game := strings.Split(s, ":")
@@ -95,6 +91,6 @@ func parseAndSolve(filename string, which string) int {
 }
 
 func main() {
-	fmt.Printf("sol1 %d\n", parseAndSolve("input.txt", "sol1"))
-	fmt.Printf("sol2 %d\n", parseAndSolve("input.txt", "sol2"))
+	fmt.Printf("sol1 %d\n", parseAndSolve("./day2/input.txt", "sol1"))
+	fmt.Printf("sol2 %d\n", parseAndSolve("./day2/input.txt", "sol2"))
 }
