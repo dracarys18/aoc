@@ -21,6 +21,9 @@ func part1(inp string) int {
 	return sumint
 }
 
+func part2() {
+
+}
 func main() {
 	input, err := os.ReadFile("./input.txt")
 	if err != nil {
