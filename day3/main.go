@@ -22,6 +22,12 @@ type Digit struct {
 	end   int
 }
 
+type Char struct {
+	char rune
+	row  int
+	col  int
+}
+
 func appendDigitArray(digits *[]Digit, number *string, row int, start int, end int) {
 	if *number != "" {
 		temp, _ := strconv.Atoi(*number)
@@ -32,7 +38,8 @@ func appendDigitArray(digits *[]Digit, number *string, row int, start int, end i
 	}
 
 }
-func (_ Solution1) solve(lines []string) int {
+
+func getNumbers(lines []string) []Digit {
 	var digits []Digit
 	for row, line := range lines {
 		number := ""
@@ -51,6 +58,28 @@ func (_ Solution1) solve(lines []string) int {
 		appendDigitArray(&digits, &number, row, start, end)
 
 	}
+	return digits
+}
+
+func getAsterik(lines []string) []Char {
+	var asteriks []Char
+	for row, line := range lines {
+		for col, char := range line {
+			if char == '*' {
+				asterik := Char{
+					char: char,
+					row:  row,
+					col:  col,
+				}
+				asteriks = append(asteriks, asterik)
+			}
+		}
+	}
+	return asteriks
+}
+
+func (_ Solution1) solve(lines []string) int {
+	digits := getNumbers(lines)
 	total := 0
 	for _, digit := range digits {
 		if isAdjacent(lines, digit.row, digit.start, digit.end) {
@@ -94,8 +123,41 @@ func isAdjacent(lines []string, row, start int, end int) bool {
 	return false
 }
 
+func getAdjacentNumbers(lines []string, row int, col int) []int {
+	var adjacentNumbers []int
+	directions := [][2]int{
+		{row, col + 1},
+		{row + 1, col},
+		{row, col - 1},
+		{row - 1, col},
+		{row + 1, col + 1},
+		{row - 1, col - 1},
+		{row + 1, col - 1},
+		{row - 1, col + 1},
+	}
+	for _, dir := range directions {
+		row, col := dir[0], dir[1]
+		if row >= 0 && row < len(lines) && col >= 0 && col < len(lines[0]) {
+			if unicode.IsDigit(rune(lines[row][col])) {
+				temp, _ := strconv.Atoi(string(lines[row][col]))
+				adjacentNumbers = append(adjacentNumbers, temp)
+			}
+		}
+	}
+	return adjacentNumbers
+}
+
 func (_ Solution2) solve(lines []string) int {
-	return 0
+	asteriks := getAsterik(lines)
+	total := 0
+	for _, asterik := range asteriks {
+		adjacentNumbers := getAdjacentNumbers(lines, asterik.row, asterik.col)
+		if len(adjacentNumbers) == 2 {
+			product := utils.ProductArray(adjacentNumbers)
+			total += product
+		}
+	}
+	return total
 }
 
 func parseAndSolve[T Solve](filename string, sol T) int {

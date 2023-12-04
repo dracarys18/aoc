@@ -28,6 +28,14 @@ func SumArray[T Adder](array []T) T {
 	return sum
 }
 
+func ProductArray(array []int) int {
+	product := 1
+	for _, ele := range array {
+		product *= ele
+	}
+	return product
+}
+
 func ReadLine(filename string) []string {
 	file, err := os.Open(filename)
 	if err != nil {
