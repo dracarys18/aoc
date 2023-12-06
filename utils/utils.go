@@ -4,6 +4,9 @@ import (
 	"bufio"
 	"errors"
 	"os"
+	"runtime"
+	"strconv"
+	"sync"
 )
 
 type Adder interface {
@@ -34,6 +37,57 @@ func ProductArray(array []int) int {
 		product *= ele
 	}
 	return product
+}
+
+func AtoiArr(array []string) []int {
+	var result []int
+	for _, s := range array {
+		num, err := strconv.Atoi(s)
+		if err == nil {
+			result = append(result, num)
+		}
+	}
+	return result
+}
+
+func MapParallel[T any, B any](array []T, inner func(T) B) []B {
+	//Change the number of cores needed to max cores available
+	runtime.GOMAXPROCS(runtime.NumCPU())
+
+	var result []B
+	waitgroup := sync.WaitGroup{}
+
+	channel := make(chan B, len(array))
+
+	waitgroup.Add(len(array))
+
+	do := func(val T) {
+		res := inner(val)
+		channel <- res
+		waitgroup.Done()
+	}
+	for _, proc := range array {
+		go do(proc)
+	}
+
+	waitgroup.Wait()
+	close(channel)
+
+	for ele := range channel {
+		result = append(result, ele)
+	}
+
+	return result
+}
+
+func ReadString(filename string) string {
+	content, err := os.ReadFile(filename)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return string(content)
 }
 
 func ReadLine(filename string) []string {
